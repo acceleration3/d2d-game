@@ -1,15 +1,17 @@
-#define DEBUG_MODE
+//#define DEBUG_MODE
 
 #include "GameWindow.h"
 
 int main(int argc, char* argv[])
 {
-	#ifndef DEBUG_MODE
-		FreeConsole();
-	#endif
-
+	
+		//Default resolution
 		int height = 600;
 		int width = 800;
+
+#ifndef DEBUG_MODE
+		ShowWindow(GetConsoleWindow(), SW_HIDE);
+#endif
 
 		if (argc >= 3)
 		{
@@ -30,8 +32,8 @@ int main(int argc, char* argv[])
 		else
 		{
 			printf("DirectDraw initialization failed.\n", width, height);
-			system("pause");
 		}
+
 
 	return 0;
 }
