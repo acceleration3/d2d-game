@@ -1,10 +1,9 @@
-//#define DEBUG_MODE
+#define DEBUG_MODE
 
 #include "GameWindow.h"
 
 int main(int argc, char* argv[])
 {
-	
 		//Default resolution
 		int height = 600;
 		int width = 800;
@@ -33,7 +32,6 @@ int main(int argc, char* argv[])
 		{
 			printf("DirectDraw initialization failed.\n", width, height);
 		}
-
 
 	return 0;
 }

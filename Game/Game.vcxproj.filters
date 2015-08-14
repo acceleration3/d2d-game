@@ -15,9 +15,24 @@
     <ClCompile Include="main.cpp">
       <Filter>Main</Filter>
     </ClCompile>
+    <ClCompile Include="ScreenManager.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameWindow.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Screen.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenManager.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics.h">
       <Filter>Objects</Filter>
     </ClInclude>
   </ItemGroup>

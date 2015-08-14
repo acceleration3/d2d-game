@@ -51,6 +51,17 @@ bool GameWindow::InitDirectX()
 	else
 		printf("Successfully created a ID2D1Factory.\n");
 
+
+	res = DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), (IUnknown**)&writeFactory);
+
+	if (res != S_OK)
+	{
+		printf("Failed to create a IDWriteFactory.\n");
+		return false;
+	}
+	else
+		printf("Successfully created a IDWriteFactory.\n");
+
 	RECT clientRect;
 	GetClientRect(hWnd, &clientRect);
 
@@ -66,6 +77,8 @@ bool GameWindow::InitDirectX()
 
 	renderTarget->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_CLEARTYPE);
 	
+	graphics = new Graphics(renderTarget, writeFactory);
+
 	return true;
 }
 
@@ -83,9 +96,9 @@ void GameWindow::GameLoop()
 			renderTarget->BeginDraw();
 			renderTarget->Clear(D2D1::ColorF(CLEAR_COLOR));
 
-			//UPDATE
+			ScreenManager::OnUpdate();
 
-			//DRAW
+			ScreenManager::OnDraw(graphics);
 
 			renderTarget->EndDraw();
 		}
@@ -98,4 +111,6 @@ GameWindow::~GameWindow()
 	renderTarget->Clear();
 	renderTarget->Release();
 	factory->Release();
+	factory = NULL;
+	renderTarget = NULL;
 }
