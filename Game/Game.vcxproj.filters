@@ -1,39 +1,81 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Main">
+    <Filter Include="core">
+      <UniqueIdentifier>{59fe1154-e7e5-495b-b3ee-28fd73a08fe7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="entrypoint">
       <UniqueIdentifier>{64cbd16b-8a4a-4e0c-8c14-374c3140dc66}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Objects">
-      <UniqueIdentifier>{59fe1154-e7e5-495b-b3ee-28fd73a08fe7}</UniqueIdentifier>
+    <Filter Include="net">
+      <UniqueIdentifier>{8cc78506-90db-4c8c-aa51-6cc52f7a4eba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="net\enet">
+      <UniqueIdentifier>{fba96142-14eb-41b5-bf05-cf0d69a8d7a0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameWindow.cpp">
-      <Filter>Objects</Filter>
+      <Filter>core</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
-      <Filter>Main</Filter>
+      <Filter>entrypoint</Filter>
+    </ClCompile>
+    <ClCompile Include="Bitmap.cpp">
+      <Filter>core</Filter>
     </ClCompile>
     <ClCompile Include="ScreenManager.cpp">
-      <Filter>Objects</Filter>
+      <Filter>core</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics.cpp">
-      <Filter>Objects</Filter>
+    <ClCompile Include="Font.cpp">
+      <Filter>core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameWindow.h">
-      <Filter>Objects</Filter>
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="Bitmap.h">
+      <Filter>core</Filter>
     </ClInclude>
     <ClInclude Include="Screen.h">
-      <Filter>Objects</Filter>
+      <Filter>core</Filter>
     </ClInclude>
     <ClInclude Include="ScreenManager.h">
-      <Filter>Objects</Filter>
+      <Filter>core</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics.h">
-      <Filter>Objects</Filter>
+    <ClInclude Include="Font.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="enet\callbacks.h">
+      <Filter>net\enet</Filter>
+    </ClInclude>
+    <ClInclude Include="enet\enet.h">
+      <Filter>net\enet</Filter>
+    </ClInclude>
+    <ClInclude Include="enet\list.h">
+      <Filter>net\enet</Filter>
+    </ClInclude>
+    <ClInclude Include="enet\protocol.h">
+      <Filter>net\enet</Filter>
+    </ClInclude>
+    <ClInclude Include="enet\time.h">
+      <Filter>net\enet</Filter>
+    </ClInclude>
+    <ClInclude Include="enet\types.h">
+      <Filter>net\enet</Filter>
+    </ClInclude>
+    <ClInclude Include="enet\unix.h">
+      <Filter>net\enet</Filter>
+    </ClInclude>
+    <ClInclude Include="enet\utility.h">
+      <Filter>net\enet</Filter>
+    </ClInclude>
+    <ClInclude Include="enet\win32.h">
+      <Filter>net\enet</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEvent.h">
+      <Filter>core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

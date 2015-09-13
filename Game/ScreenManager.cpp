@@ -5,6 +5,15 @@ int ScreenManager::frames = 0;
 long ScreenManager::lastFpsTick = GetTickCount();
 Screen* ScreenManager::activeScreen = NULL;
 std::vector<Screen*> ScreenManager::screenList;
+pDXELEMENTS ScreenManager::_dxelements = NULL;
+
+Font* fpsfont;
+
+void ScreenManager::Initialize(pDXELEMENTS dxelements)
+{
+	_dxelements = dxelements;
+	fpsfont = new Font(L"Arial", 10, dxelements);
+}
 
 void ScreenManager::AddScreen(Screen* screen)
 {
@@ -17,24 +26,16 @@ void ScreenManager::AddScreen(Screen* screen)
 	screenList.push_back(screen);
 }
 
-void ScreenManager::LoadResources()
-{
-	for (int i = 0; i < screenList.size(); i++)
-		screenList[i]->LoadResources();
-}
-
 void ScreenManager::OnUpdate()
 {
 	if (activeScreen)
 		activeScreen->OnUpdate();
 }
 
-void ScreenManager::OnDraw(Graphics* graphics)
+void ScreenManager::OnDraw()
 {
 	if (activeScreen)
-		activeScreen->OnDraw(graphics);
-
-	frames++;
+		activeScreen->OnDraw();
 
 	//Calculate FPS
 	if (GetTickCount() >= lastFpsTick + 1000)
@@ -44,15 +45,18 @@ void ScreenManager::OnDraw(Graphics* graphics)
 		lastFpsTick = GetTickCount();
 	}	
 
-	wchar_t* szFPS = new wchar_t[256];
-	wsprintf(szFPS, L"FPS: %i", fps);
-	graphics->GDrawText(1, 1, szFPS, L"Arial", 12, DWRITE_FONT_STYLE_NORMAL, D2D1::ColorF(D2D1::ColorF::White));
-	delete[] szFPS;
+	frames++;
+
+	wchar_t* szNewTitle = new wchar_t[256];
+	wsprintf(szNewTitle, L"FPS: %i", fps);
+	fpsfont->DrawString(5, 5, szNewTitle, D2D1::ColorF(D2D1::ColorF::Aquamarine));
+	delete[] szNewTitle;
+
 }
 
-void ScreenManager::OnWindowMessage(UINT msg, LPARAM lParam, WPARAM wParam)
+void ScreenManager::OnEvent(GameEvent::Event* evt)
 {
-	//TODO: Process messages and send relevant ones to the active screen
+	
 }
 
 void ScreenManager::SetActiveScreen(std::string name)

@@ -1,12 +1,9 @@
 #pragma once
 
+#include "GameEvent.h"
 #include <Windows.h>
 #include <stdio.h>
-#include <d2d1.h>
-#include <dwrite.h>
-
 #include "ScreenManager.h"
-#include "Graphics.h"
 
 
 class GameWindow
@@ -15,19 +12,18 @@ class GameWindow
 private:
 
 	HWND hWnd;
-	ID2D1HwndRenderTarget* renderTarget;
-	ID2D1Factory* factory;
-	IDWriteFactory* writeFactory;
+	DXELEMENTS dxelements;
 	Graphics* graphics;
 	WNDCLASSEX wndClass;
-	const D2D1::ColorF CLEAR_COLOR = D2D1::ColorF::CornflowerBlue;
+	const D2D1::ColorF CLEAR_COLOR = D2D1::ColorF::Black;
 
 public:
-
+	
+	static const wchar_t* title;
 	GameWindow(int height, int width);
 	bool InitDirectX();
 	void GameLoop();
+	void Release();
 	~GameWindow();
-
 };
 

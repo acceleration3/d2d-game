@@ -1,5 +1,6 @@
 #define DEBUG_MODE
 
+#include "enet/enet.h"
 #include "GameWindow.h"
 
 int main(int argc, char* argv[])
@@ -21,17 +22,28 @@ int main(int argc, char* argv[])
 		else
 			printf("Using default resolution: %ix%i.\n", width, height);
 
-		GameWindow window(height, width);
+		GameWindow* window = new GameWindow(height, width);
 
-		if (window.InitDirectX())
+		if (enet_initialize() == 0)
+			printf("ENet initialized successful.\n");
+		else
+			printf("ENet failed to initialize.\n");
+
+		if (window->InitDirectX())
 		{
-			printf("DirectDraw initialization successfull. Starting game loop.\n", width, height);
-			window.GameLoop();
+			printf("Game initialization successful. Starting game loop.\n");
+			window->GameLoop();
 		}
 		else
 		{
-			printf("DirectDraw initialization failed.\n", width, height);
+			printf("Game initialization failed.\n");
+			window->Release();
+#ifdef DEBUG_MODE
+			system("pause");
+#endif
 		}
+
+		enet_deinitialize();
 
 	return 0;
 }
