@@ -1,12 +1,18 @@
 #include "GameWindow.h"
 
 const wchar_t* GameWindow::title = L"GAME";
+bool GameWindow::isFullscreen = false;
+HWND GameWindow::hWnd = 0;
+HDC GameWindow::hDC = 0;
+int GameWindow::_height = 0;
+int GameWindow::_width = 0;
+DXELEMENTS GameWindow::dxelements;
 
 LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg)
 	{
-		//KEY MESSAGES
+		//KEYBOARD MESSAGES
 		case WM_KEYDOWN:		
 			ScreenManager::OnEvent(new GameEvent::KeyDownEvent((char)wParam, true));
 			break;
@@ -14,27 +20,30 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			ScreenManager::OnEvent(new GameEvent::KeyDownEvent((char)wParam, false));
 			break;
 		case WM_CHAR:
-			ScreenManager::OnEvent(new GameEvent::KeyTypedEvent((char)wParam));
+			ScreenManager::OnEvent(new GameEvent::KeyTypedEvent((wchar_t)wParam));
 			break;
 
 		//MOUSE MESSAGES
 		case WM_LBUTTONDOWN:
-			ScreenManager::OnEvent(new GameEvent::MouseEvent(GameEvent::MOUSEBUTTON::LEFT, true, LOWORD(lParam), HIWORD(lParam)));
+			ScreenManager::OnEvent(new GameEvent::MouseClickEvent(GameEvent::MOUSEBUTTON::LEFT, true, LOWORD(lParam), HIWORD(lParam)));
 			break;
 		case WM_LBUTTONUP:
-			ScreenManager::OnEvent(new GameEvent::MouseEvent(GameEvent::MOUSEBUTTON::LEFT, false, LOWORD(lParam), HIWORD(lParam)));
+			ScreenManager::OnEvent(new GameEvent::MouseClickEvent(GameEvent::MOUSEBUTTON::LEFT, false, LOWORD(lParam), HIWORD(lParam)));
 			break;
 		case WM_RBUTTONDOWN:
-			ScreenManager::OnEvent(new GameEvent::MouseEvent(GameEvent::MOUSEBUTTON::RIGHT, true, LOWORD(lParam), HIWORD(lParam)));
+			ScreenManager::OnEvent(new GameEvent::MouseClickEvent(GameEvent::MOUSEBUTTON::RIGHT, true, LOWORD(lParam), HIWORD(lParam)));
 			break;
 		case WM_RBUTTONUP:
-			ScreenManager::OnEvent(new GameEvent::MouseEvent(GameEvent::MOUSEBUTTON::RIGHT, false, LOWORD(lParam), HIWORD(lParam)));
+			ScreenManager::OnEvent(new GameEvent::MouseClickEvent(GameEvent::MOUSEBUTTON::RIGHT, false, LOWORD(lParam), HIWORD(lParam)));
 			break;
 		case WM_MBUTTONDOWN:
-			ScreenManager::OnEvent(new GameEvent::MouseEvent(GameEvent::MOUSEBUTTON::MIDDLE, true, LOWORD(lParam), HIWORD(lParam)));
+			ScreenManager::OnEvent(new GameEvent::MouseClickEvent(GameEvent::MOUSEBUTTON::MIDDLE, true, LOWORD(lParam), HIWORD(lParam)));
 			break;
 		case WM_MBUTTONUP:
-			ScreenManager::OnEvent(new GameEvent::MouseEvent(GameEvent::MOUSEBUTTON::MIDDLE, false, LOWORD(lParam), HIWORD(lParam)));
+			ScreenManager::OnEvent(new GameEvent::MouseClickEvent(GameEvent::MOUSEBUTTON::MIDDLE, false, LOWORD(lParam), HIWORD(lParam)));
+			break;
+		case WM_MOUSEMOVE:
+			ScreenManager::OnEvent(new GameEvent::MouseMoveEvent(LOWORD(lParam), HIWORD(lParam)));
 			break;
 
 		//QUIT MESSAGE
@@ -48,6 +57,9 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 GameWindow::GameWindow(int height, int width)
 {
+	_height = height;
+	_width = width;
+
 	ZeroMemory(&wndClass, sizeof(WNDCLASSEX));
 
 	wndClass.cbSize = sizeof(WNDCLASSEX);
@@ -62,9 +74,9 @@ GameWindow::GameWindow(int height, int width)
 	RegisterClassEx(&wndClass);
 
 	RECT renderRect = { 0, 0, width, height };
-
-	AdjustWindowRectEx(&renderRect, WS_OVERLAPPEDWINDOW, false, WS_EX_OVERLAPPEDWINDOW);
 	hWnd = CreateWindow(L"GameRenderWindow", title, WS_VISIBLE | WS_CAPTION | WS_BORDER | WS_SYSMENU | WS_MINIMIZEBOX, CW_USEDEFAULT, CW_USEDEFAULT, renderRect.right - renderRect.left, renderRect.bottom - renderRect.top, NULL, NULL, GetModuleHandle(NULL), NULL);
+	AdjustWindowRectEx(&renderRect, GetWindowLong(hWnd, GWL_STYLE), false, GetWindowLong(hWnd, GWL_EXSTYLE));
+	SetWindowPos(hWnd, 0, 0, 0, renderRect.right - renderRect.left, renderRect.bottom - renderRect.top, SWP_NOMOVE | SWP_NOACTIVATE | SWP_NOZORDER);
 
 	if (hWnd == NULL)
 	{
@@ -137,17 +149,10 @@ bool GameWindow::InitDirectX()
 	RECT clientRect;
 	GetClientRect(hWnd, &clientRect);
 
-	D2D1_RENDER_TARGET_PROPERTIES renderProperties;
+	D2D1_RENDER_TARGET_PROPERTIES renderProperties = D2D1::RenderTargetProperties(D2D1_RENDER_TARGET_TYPE_HARDWARE, D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED), 0, 0, D2D1_RENDER_TARGET_USAGE_GDI_COMPATIBLE, D2D1_FEATURE_LEVEL_DEFAULT);
 
-	renderProperties.dpiX = 0.0F;
-	renderProperties.dpiY = 0.0F;
-	renderProperties.minLevel = D2D1_FEATURE_LEVEL_9;						//Support for DirectX9
-	renderProperties.type = D2D1_RENDER_TARGET_TYPE_HARDWARE;				//GPU Rendering
-	renderProperties.pixelFormat = D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED);
-	renderProperties.usage = D2D1_RENDER_TARGET_USAGE_GDI_COMPATIBLE;		//Allow GDI calls (Screenshots and screen recording)
-
-	res = dxelements.factory->CreateHwndRenderTarget(renderProperties, D2D1::HwndRenderTargetProperties(hWnd, D2D1::SizeU(clientRect.right, clientRect.bottom)), &dxelements.renderTarget);
-
+	res = dxelements.factory->CreateHwndRenderTarget(renderProperties, D2D1::HwndRenderTargetProperties(hWnd, D2D1::SizeU(clientRect.right, clientRect.bottom), D2D1_PRESENT_OPTIONS_NONE), &dxelements.renderTarget);
+	
 	if (res != S_OK || dxelements.renderTarget == NULL)
 	{
 		printf("Failed to create a RenderTarget for the render window.\n");
@@ -161,9 +166,40 @@ bool GameWindow::InitDirectX()
 	return true;
 }
 
+void GameWindow::ToggleFullscreen()
+{
+	if (!isFullscreen)
+	{
+		LONG lStyle = GetWindowLong(hWnd, GWL_STYLE);
+		lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZE | WS_SYSMENU);
+		SetWindowLong(hWnd, GWL_STYLE, lStyle);
+		SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), 0);
+		RECT renderRect = { 0, 0, _width, _height };
+		isFullscreen = true;
+	}
+	else
+	{
+		SetWindowLong(hWnd, GWL_STYLE, WS_VISIBLE | WS_CAPTION | WS_BORDER | WS_SYSMENU | WS_MINIMIZEBOX);
+		RECT renderRect = { 0, 0, _width, _height };
+		AdjustWindowRectEx(&renderRect, GetWindowLong(hWnd, GWL_STYLE), false, GetWindowLong(hWnd, GWL_EXSTYLE));
+		SetWindowPos(hWnd, HWND_NOTOPMOST, 0, 0, renderRect.right - renderRect.left, renderRect.bottom - renderRect.top, SWP_NOMOVE | SWP_NOACTIVATE);
+
+		RECT rc;
+		GetWindowRect(hWnd, &rc);
+		int xPos = (GetSystemMetrics(SM_CXSCREEN) - (rc.right - rc.left)) / 2;
+		int yPos = (GetSystemMetrics(SM_CYSCREEN) - (rc.bottom - rc.top)) / 2;
+
+		SetWindowPos(hWnd, 0, xPos, yPos, 0, 0, SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOZORDER);
+
+		isFullscreen = false;
+	}
+	
+}
+
 void GameWindow::GameLoop()
 {
 	MSG message;
+
 	ZeroMemory(&message, sizeof(MSG));
 
 	ScreenManager::Initialize(&dxelements);

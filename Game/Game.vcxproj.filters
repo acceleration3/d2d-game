@@ -77,5 +77,6 @@
     <ClInclude Include="GameEvent.h">
       <Filter>core</Filter>
     </ClInclude>
+    <ClInclude Include="IntroScreen.h" />
   </ItemGroup>
 </Project>

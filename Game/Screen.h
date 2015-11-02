@@ -1,11 +1,12 @@
 #pragma once
 
+#include <vld.h>
+#include "GameEvent.h"
 #include <string>
 #include <d2d1.h>
 #include <dwrite.h>
 #include <wincodec.h>
 #include <dsound.h>
-
 #include "Graphics.h"
 
 typedef struct
@@ -20,12 +21,10 @@ typedef struct
 class Screen
 {
 
-private:
-	pDXELEMENTS dxelements;
-
 public:
 
 	std::string name;
+	pDXELEMENTS dxelements;
 
 	Screen(std::string name, pDXELEMENTS dxelements) : name(name), dxelements(dxelements){}
 	

@@ -5,11 +5,12 @@
 namespace GameEvent
 {
 	enum EVENT_TYPE
-	{ 
-		MOUSE_GAMEEVENT,
-		KEYDN_GAMEEVENT,
-		KEYTP_GAMEEVENT,
-		NETWK_GAMEEVENT
+	{
+		GEVENT_MOUSECLICK,
+		GEVENT_MOUSEMOVE,
+		GEVENT_KEYDOWN,
+		GEVENT_KEYTYPED,
+		GEVENT_NETWORK
 	};
 
 	enum MOUSEBUTTON
@@ -23,62 +24,78 @@ namespace GameEvent
 	{
 		public:
 			EVENT_TYPE type;
+
 	};
 
 	class SocketEvent : public Event
 	{
 	public:
-		SocketEvent(ENetEvent evt)
+		SocketEvent(ENetEvent _evt)
 		{ 
-			type = EVENT_TYPE::NETWK_GAMEEVENT;
-			_evt = evt;
+			type = EVENT_TYPE::GEVENT_NETWORK;
+			evt = _evt;
 		}
-		ENetEvent _evt;
+		ENetEvent evt;
 	};
 
-	class MouseEvent : public Event
+	class MouseClickEvent : public Event
 	{
 		
 	public:
-		MouseEvent(MOUSEBUTTON button, bool pressed, int x, int y)
+		MouseClickEvent(MOUSEBUTTON _button, bool _pressed, int _x, int _y)
 		{ 
-			type = EVENT_TYPE::MOUSE_GAMEEVENT; 
-			_button = button;
-			_pressed = pressed;
-			_x = x;
-			_y = y;
+			type = EVENT_TYPE::GEVENT_MOUSECLICK; 
+			button = _button;
+			pressed = _pressed;
+			x = _x;
+			y = _y;
 		}
 
-		MOUSEBUTTON _button;
-		bool _pressed;
-		int _x;
-		int _y;
+		MOUSEBUTTON button;
+		bool pressed;
+		int x;
+		int y;
+	};
+
+	class MouseMoveEvent : public Event
+	{
+		
+	public:
+		MouseMoveEvent(int _x, int _y)
+		{
+			type = EVENT_TYPE::GEVENT_MOUSEMOVE;
+			x = _x;
+			y = _y;
+		}
+
+		int x;
+		int y;
 	};
 
 	class KeyTypedEvent : public Event
 	{
 	public:
 
-		KeyTypedEvent(char key)
+		KeyTypedEvent(wchar_t _key)
 		{
-			type = EVENT_TYPE::KEYTP_GAMEEVENT;
-			_key = key;
+			type = EVENT_TYPE::GEVENT_KEYTYPED;
+			key = _key;
 		}
-		char _key;
+		wchar_t key;
 	};
 
 	class KeyDownEvent : public Event
 	{
 	public:
 
-	KeyDownEvent(char key, bool pressed)
+		KeyDownEvent(char _key, bool _pressed)
 	{
-		type = EVENT_TYPE::KEYDN_GAMEEVENT;
-		_key = key;
-		_pressed = pressed;
+		type = EVENT_TYPE::GEVENT_KEYDOWN;
+		key = _key;
+		pressed = _pressed;
 	}
-	char _key;
-	bool _pressed;
+	char key;
+	bool pressed;
 };
 }
 

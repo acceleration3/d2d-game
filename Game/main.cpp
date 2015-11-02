@@ -11,6 +11,7 @@ int main(int argc, char* argv[])
 
 #ifndef DEBUG_MODE
 		ShowWindow(GetConsoleWindow(), SW_HIDE);
+		
 #endif
 
 		if (argc >= 3)
@@ -42,6 +43,8 @@ int main(int argc, char* argv[])
 			system("pause");
 #endif
 		}
+		
+		delete window;
 
 		enet_deinitialize();
 

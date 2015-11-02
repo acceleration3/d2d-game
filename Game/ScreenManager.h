@@ -18,8 +18,9 @@ private:
 	static std::vector<Screen*> screenList;
 	static int frames;
 	static int fps;
-	static long lastFpsTick;
+	static UINT64 lastFpsTick;
 	static pDXELEMENTS _dxelements;
+
 
 public:
 

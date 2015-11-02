@@ -8,11 +8,18 @@ Bitmap::Bitmap(UINT width, UINT height, pDXELEMENTS dxelements) : _dxelements(dx
 
 Bitmap::Bitmap(wstring file, pDXELEMENTS dxelements) : _dxelements(dxelements), file(file)
 {
-	HRESULT hr = _dxelements->imageFactory->CreateDecoderFromFilename(file.c_str(), NULL, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &imageDecoder);
+	wchar_t buffer[MAX_PATH];
+	GetModuleFileName(NULL, buffer, MAX_PATH);
+	wstring::size_type pos = wstring(buffer).find_last_of(L"\\/");
+	
+	wstring path = wstring(buffer).substr(0, pos);
+	path += file;
+
+	HRESULT hr = _dxelements->imageFactory->CreateDecoderFromFilename(path.c_str(), NULL, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &imageDecoder);
 
 	if (hr != S_OK)
 	{
-		wprintf(L"Failed loading the image: %s %x.\n", file.c_str(), hr);
+		wprintf(L"Failed loading the image: %s %x.\n", path.c_str(), hr);
 		return;
 	}
 
@@ -20,7 +27,7 @@ Bitmap::Bitmap(wstring file, pDXELEMENTS dxelements) : _dxelements(dxelements), 
 	
 	if (hr != S_OK)
 	{
-		wprintf(L"Failed getting frame 0 for the image: %s.\n", file.c_str());
+		wprintf(L"Failed getting frame 0 for the image: %s.\n", path.c_str());
 		return;
 	}
 
@@ -28,15 +35,15 @@ Bitmap::Bitmap(wstring file, pDXELEMENTS dxelements) : _dxelements(dxelements), 
 
 	if (hr != S_OK)
 	{
-		wprintf(L"Failed creating a format converter for the image: %s.\n", file.c_str());
+		wprintf(L"Failed creating a format converter for the image: %s.\n", path.c_str());
 		return;
 	}
 
-	hr = formatConverter->Initialize(imageFrame, GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeNone, NULL, 0.0, WICBitmapPaletteTypeCustom);
+	hr = formatConverter->Initialize(imageFrame, GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeSpiral8x8, NULL, 0.0, WICBitmapPaletteTypeCustom);
 	
 	if (hr != S_OK)
 	{
-		wprintf(L"Failed initializing a format converter for the image: %s.\n", file.c_str());
+		wprintf(L"Failed initializing a format converter for the image: %s.\n", path.c_str());
 		return;
 	}
 
@@ -44,13 +51,22 @@ Bitmap::Bitmap(wstring file, pDXELEMENTS dxelements) : _dxelements(dxelements), 
 }
 
 
-void Bitmap::Draw(FLOAT transparency)
+void Bitmap::Draw(FLOAT rotation, FLOAT transparency)
 {
 	if (!dxbitmap)
 		return;
 
 	D2D1_SIZE_F size = dxbitmap->GetSize();
-	_dxelements->renderTarget->DrawBitmap(dxbitmap, D2D1::RectF(x, y, x + size.width, y + size.height), transparency, D2D1_BITMAP_INTERPOLATION_MODE::D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR, D2D1::RectF(0, 0, size.width, size.height));
+
+	D2D1::Matrix3x2F angle = D2D1::Matrix3x2F::Rotation(rotation, D2D1::Point2F(x + (size.width / 2), y + (size.height / 2)));
+	_dxelements->renderTarget->SetTransform(angle);
+	_dxelements->renderTarget->DrawBitmap(dxbitmap, D2D1::RectF(x, y, x + size.width, y + size.height), transparency, D2D1_BITMAP_INTERPOLATION_MODE::D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR, D2D1::RectF(0.0F, 0.0F, size.width, size.height));
+	_dxelements->renderTarget->SetTransform(D2D1::Matrix3x2F::Identity());
+}
+
+D2D1_SIZE_U Bitmap::GetSize()
+{
+	return dxbitmap->GetPixelSize();
 }
 
 void Bitmap::CopyTo(Bitmap* dest, int x, int y)
