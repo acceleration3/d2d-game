@@ -1,12 +1,11 @@
+#include "stdafx.h"
 #include "GameWindow.h"
 
 const wchar_t* GameWindow::title = L"GAME";
 bool GameWindow::isFullscreen = false;
 HWND GameWindow::hWnd = 0;
-HDC GameWindow::hDC = 0;
 int GameWindow::_height = 0;
 int GameWindow::_width = 0;
-DXELEMENTS GameWindow::dxelements;
 
 LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -20,7 +19,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			ScreenManager::OnEvent(new GameEvent::KeyDownEvent((char)wParam, false));
 			break;
 		case WM_CHAR:
-			ScreenManager::OnEvent(new GameEvent::KeyTypedEvent((wchar_t)wParam));
+			ScreenManager::OnEvent(new GameEvent::KeyTypedEvent((char)wParam));
 			break;
 
 		//MOUSE MESSAGES
@@ -63,7 +62,7 @@ GameWindow::GameWindow(int height, int width)
 	ZeroMemory(&wndClass, sizeof(WNDCLASSEX));
 
 	wndClass.cbSize = sizeof(WNDCLASSEX);
-	wndClass.hbrBackground = (HBRUSH)COLOR_WINDOW;
+	//wndClass.hbrBackground = (HBRUSH)COLOR_WINDOW;
 	wndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wndClass.lpszClassName = L"GameRenderWindow";
 	wndClass.lpfnWndProc = WindowProc;
@@ -74,7 +73,9 @@ GameWindow::GameWindow(int height, int width)
 	RegisterClassEx(&wndClass);
 
 	RECT renderRect = { 0, 0, width, height };
-	hWnd = CreateWindow(L"GameRenderWindow", title, WS_VISIBLE | WS_CAPTION | WS_BORDER | WS_SYSMENU | WS_MINIMIZEBOX, CW_USEDEFAULT, CW_USEDEFAULT, renderRect.right - renderRect.left, renderRect.bottom - renderRect.top, NULL, NULL, GetModuleHandle(NULL), NULL);
+	hWnd = CreateWindowW(L"GameRenderWindow", title, WS_VISIBLE | WS_CAPTION | WS_BORDER | WS_SYSMENU | WS_MINIMIZEBOX, CW_USEDEFAULT, CW_USEDEFAULT, renderRect.right - renderRect.left, renderRect.bottom - renderRect.top, NULL, NULL, GetModuleHandle(NULL), NULL);
+	DXElements::hWnd = hWnd;
+
 	AdjustWindowRectEx(&renderRect, GetWindowLong(hWnd, GWL_STYLE), false, GetWindowLong(hWnd, GWL_EXSTYLE));
 	SetWindowPos(hWnd, 0, 0, 0, renderRect.right - renderRect.left, renderRect.bottom - renderRect.top, SWP_NOMOVE | SWP_NOACTIVATE | SWP_NOZORDER);
 
@@ -102,7 +103,7 @@ GameWindow::GameWindow(int height, int width)
 bool GameWindow::InitDirectX()
 {
 
-	HRESULT res = D2D1CreateFactory(D2D1_FACTORY_TYPE_MULTI_THREADED, &dxelements.factory);
+	HRESULT res = D2D1CreateFactory(D2D1_FACTORY_TYPE_MULTI_THREADED, &DXElements::factory);
 
 	if (res != S_OK)
 	{
@@ -113,7 +114,7 @@ bool GameWindow::InitDirectX()
 		printf("Successfully created an ID2D1Factory interface.\n");
 
 
-	res = DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), (IUnknown**)&dxelements.writeFactory);
+	res = DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), (IUnknown**)&DXElements::writeFactory);
 
 	if (res != S_OK)
 	{
@@ -123,7 +124,7 @@ bool GameWindow::InitDirectX()
 	else
 		printf("Successfully created an IDWriteFactory interface.\n");
 
-	res = DirectSoundCreate(NULL, &dxelements.dsound, NULL);
+	res = DirectSoundCreate(NULL, &DXElements::dsound, NULL);
 
 	if (res != S_OK)
 	{
@@ -133,10 +134,10 @@ bool GameWindow::InitDirectX()
 	else
 		printf("Successfully created an IDirectSound interface.\n");
 
-	dxelements.dsound->SetCooperativeLevel(hWnd, DSSCL_PRIORITY);
+	DXElements::dsound->SetCooperativeLevel(hWnd, DSSCL_PRIORITY);
 
 	
-	res = CoCreateInstance(CLSID_WICImagingFactory, NULL, CLSCTX_INPROC_SERVER, IID_IWICImagingFactory, (LPVOID*)&dxelements.imageFactory);
+	res = CoCreateInstance(CLSID_WICImagingFactory, NULL, CLSCTX_INPROC_SERVER, IID_IWICImagingFactory, (LPVOID*)&DXElements::imageFactory);
 	
 	if (res != S_OK)
 	{
@@ -151,9 +152,9 @@ bool GameWindow::InitDirectX()
 
 	D2D1_RENDER_TARGET_PROPERTIES renderProperties = D2D1::RenderTargetProperties(D2D1_RENDER_TARGET_TYPE_HARDWARE, D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED), 0, 0, D2D1_RENDER_TARGET_USAGE_GDI_COMPATIBLE, D2D1_FEATURE_LEVEL_DEFAULT);
 
-	res = dxelements.factory->CreateHwndRenderTarget(renderProperties, D2D1::HwndRenderTargetProperties(hWnd, D2D1::SizeU(clientRect.right, clientRect.bottom), D2D1_PRESENT_OPTIONS_NONE), &dxelements.renderTarget);
+	res = DXElements::factory->CreateHwndRenderTarget(renderProperties, D2D1::HwndRenderTargetProperties(hWnd, D2D1::SizeU(clientRect.right, clientRect.bottom), D2D1_PRESENT_OPTIONS_NONE), &DXElements::renderTarget);
 	
-	if (res != S_OK || dxelements.renderTarget == NULL)
+	if (res != S_OK || DXElements::renderTarget == NULL)
 	{
 		printf("Failed to create a RenderTarget for the render window.\n");
 		return false;
@@ -161,7 +162,7 @@ bool GameWindow::InitDirectX()
 	else
 		printf("Successfully created a RenderTarget for the render window.\n");
 
-	dxelements.renderTarget->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_CLEARTYPE);
+	DXElements::renderTarget->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_CLEARTYPE);
 	
 	return true;
 }
@@ -170,11 +171,13 @@ void GameWindow::ToggleFullscreen()
 {
 	if (!isFullscreen)
 	{
+		
 		LONG lStyle = GetWindowLong(hWnd, GWL_STYLE);
 		lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZE | WS_SYSMENU);
 		SetWindowLong(hWnd, GWL_STYLE, lStyle);
 		SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), 0);
 		RECT renderRect = { 0, 0, _width, _height };
+		//DXElements::renderTarget->Resize(D2D1::SizeU(GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN)));
 		isFullscreen = true;
 	}
 	else
@@ -189,7 +192,8 @@ void GameWindow::ToggleFullscreen()
 		int xPos = (GetSystemMetrics(SM_CXSCREEN) - (rc.right - rc.left)) / 2;
 		int yPos = (GetSystemMetrics(SM_CYSCREEN) - (rc.bottom - rc.top)) / 2;
 
-		SetWindowPos(hWnd, 0, xPos, yPos, 0, 0, SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOZORDER);
+		SetWindowPos(hWnd, 0, xPos, yPos, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+		//DXElements::renderTarget->Resize(D2D1::SizeU(_width, _height));
 
 		isFullscreen = false;
 	}
@@ -202,7 +206,7 @@ void GameWindow::GameLoop()
 
 	ZeroMemory(&message, sizeof(MSG));
 
-	ScreenManager::Initialize(&dxelements);
+	ScreenManager::Initialize();
 
 	while (message.message != WM_QUIT)
 	{
@@ -213,13 +217,13 @@ void GameWindow::GameLoop()
 		}
 		else
 		{
-			dxelements.renderTarget->BeginDraw();
-			dxelements.renderTarget->Clear(D2D1::ColorF(CLEAR_COLOR));
+			DXElements::renderTarget->BeginDraw();
+			DXElements::renderTarget->Clear(D2D1::ColorF(CLEAR_COLOR));
 
 			ScreenManager::OnUpdate();
 			ScreenManager::OnDraw();
 
-			dxelements.renderTarget->EndDraw();
+			DXElements::renderTarget->EndDraw();
 		}
 	}
 }
@@ -231,18 +235,18 @@ void GameWindow::Release()
 
 GameWindow::~GameWindow()
 {
-	if (dxelements.renderTarget) dxelements.renderTarget->Release();
-	if (dxelements.factory) dxelements.factory->Release();
-	if (dxelements.writeFactory) dxelements.writeFactory->Release();
-	if (dxelements.imageFactory) dxelements.imageFactory->Release();
-	if (dxelements.dsound) dxelements.dsound->Release();
+	if (DXElements::renderTarget) DXElements::renderTarget->Release();
+	if (DXElements::factory) DXElements::factory->Release();
+	if (DXElements::writeFactory) DXElements::writeFactory->Release();
+	if (DXElements::imageFactory) DXElements::imageFactory->Release();
+	if (DXElements::dsound) DXElements::dsound->Release();
 
-	dxelements.factory = NULL;
-	dxelements.renderTarget = NULL;
-	dxelements.writeFactory = NULL;
-	dxelements.imageFactory = NULL;
-	dxelements.dsound = NULL;
+	DXElements::factory = NULL;
+	DXElements::renderTarget = NULL;
+	DXElements::writeFactory = NULL;
+	DXElements::imageFactory = NULL;
+	DXElements::dsound = NULL;
 	
-	UnregisterClass(L"GameRenderWindow", GetModuleHandle(NULL));
+	UnregisterClassW(L"GameRenderWindow", GetModuleHandle(NULL));
 	DestroyWindow(hWnd);
 }

@@ -1,22 +1,19 @@
+#include "stdafx.h"
 #include "ScreenManager.h"
-#include "IntroScreen.h"
 
 int ScreenManager::fps = 0;
 int ScreenManager::frames = 0;
 UINT64 ScreenManager::lastFpsTick = GetTickCount();
 Screen* ScreenManager::activeScreen = NULL;
 std::vector<Screen*> ScreenManager::screenList;
-pDXELEMENTS ScreenManager::_dxelements = NULL;
-
 
 Font* fpsfont;
 
-void ScreenManager::Initialize(pDXELEMENTS dxelements)
+void ScreenManager::Initialize()
 {
-	_dxelements = dxelements;
-	fpsfont = new Font(L"Arial", 10, dxelements);
-	AddScreen(new IntroScreen(dxelements));
-	SetActiveScreen("introscreen");
+	fpsfont = new Font(L"Arial", 10);
+	AddScreen(new LoginScreen());
+	SetActiveScreen("loginscreen");
 }
 
 void ScreenManager::AddScreen(Screen* screen)
@@ -51,7 +48,7 @@ void ScreenManager::OnDraw()
 
 	frames++;
 
-	wstring newTitle(L"FPS: ");
+	std::wstring newTitle(L"FPS: ");
 	newTitle += std::to_wstring(fps);
 	fpsfont->DrawString(5, 5, &newTitle[0], D2D1::ColorF(D2D1::ColorF::Aquamarine));
 

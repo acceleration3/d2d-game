@@ -1,5 +1,4 @@
 #pragma once
-
 #include "enet\enet.h"
 
 namespace GameEvent
@@ -10,7 +9,8 @@ namespace GameEvent
 		GEVENT_MOUSEMOVE,
 		GEVENT_KEYDOWN,
 		GEVENT_KEYTYPED,
-		GEVENT_NETWORK
+		GEVENT_NETWORK,
+		GEVENT_GUI
 	};
 
 	enum MOUSEBUTTON
@@ -57,6 +57,19 @@ namespace GameEvent
 		int y;
 	};
 
+	class GUIEvent : public Event
+	{
+	public:
+		GUIEvent(std::string controlName, std::string eventName)
+		{
+			this->type = GEVENT_GUI;
+			this->eventName = controlName + "_" + eventName;
+		}
+
+		std::string eventName;
+
+	};
+
 	class MouseMoveEvent : public Event
 	{
 		
@@ -76,12 +89,12 @@ namespace GameEvent
 	{
 	public:
 
-		KeyTypedEvent(wchar_t _key)
+		KeyTypedEvent(char _key)
 		{
 			type = EVENT_TYPE::GEVENT_KEYTYPED;
 			key = _key;
 		}
-		wchar_t key;
+		char key;
 	};
 
 	class KeyDownEvent : public Event

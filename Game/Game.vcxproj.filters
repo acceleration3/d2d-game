@@ -13,6 +13,15 @@
     <Filter Include="net\enet">
       <UniqueIdentifier>{fba96142-14eb-41b5-bf05-cf0d69a8d7a0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="game">
+      <UniqueIdentifier>{2912d07e-3e8e-47a1-ad68-fc903d61af3e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game\LoginScreen">
+      <UniqueIdentifier>{c6de4d4c-a1f8-4ce6-ab26-536e6c7f2c6f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game\ui">
+      <UniqueIdentifier>{c983a95c-a5b1-4b5d-ab9d-70918c1a99b4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameWindow.cpp">
@@ -29,6 +38,39 @@
     </ClCompile>
     <ClCompile Include="Font.cpp">
       <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="TextBox.cpp">
+      <Filter>game\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="DXElements.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="ContentLoader.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>entrypoint</Filter>
+    </ClCompile>
+    <ClCompile Include="ControlGroup.cpp">
+      <Filter>game\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="Label.cpp">
+      <Filter>game\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="Button.cpp">
+      <Filter>game\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="Panel.cpp">
+      <Filter>game\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="LoginScreen.cpp">
+      <Filter>game\LoginScreen</Filter>
+    </ClCompile>
+    <ClCompile Include="Packet.cpp">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="Message.cpp">
+      <Filter>game</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -77,6 +119,44 @@
     <ClInclude Include="GameEvent.h">
       <Filter>core</Filter>
     </ClInclude>
-    <ClInclude Include="IntroScreen.h" />
+    <ClInclude Include="UIControl.h">
+      <Filter>game\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="TextBox.h">
+      <Filter>game\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="DXElements.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="ContentLoader.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>entrypoint</Filter>
+    </ClInclude>
+    <ClInclude Include="md5.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="ControlGroup.h">
+      <Filter>game\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="Label.h">
+      <Filter>game\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="Button.h">
+      <Filter>game\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="Panel.h">
+      <Filter>game\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="LoginScreen.h">
+      <Filter>game\LoginScreen</Filter>
+    </ClInclude>
+    <ClInclude Include="Packet.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="Message.h">
+      <Filter>game</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

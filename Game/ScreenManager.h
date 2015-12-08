@@ -1,13 +1,10 @@
 #pragma once
-
-#include "GameEvent.h"
-#include <vector>
-#include <Windows.h>
 #include "Screen.h"
 #include "Bitmap.h"
 #include "Font.h"
 #include "GameWindow.h"
-
+#include "LoginScreen.h"
+#include "GameEvent.h"
 
 class ScreenManager
 {
@@ -19,12 +16,11 @@ private:
 	static int frames;
 	static int fps;
 	static UINT64 lastFpsTick;
-	static pDXELEMENTS _dxelements;
 
 
 public:
 
-	static void Initialize(pDXELEMENTS dxelements);
+	static void Initialize();
 	static void OnDraw();
 	static void OnUpdate();
 	static void OnEvent(GameEvent::Event* evt);
